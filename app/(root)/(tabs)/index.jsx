@@ -1,17 +1,16 @@
-import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
+import React from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function Index() {
+  const handleRecord = ()=>{}
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-    <Text className = "font-bold text-lg my-10">Click to start</Text>
-    <Link href="/main">Main</Link>
-    </View>
-  );
+    <SafeAreaView className = "bg-white h-full">
+      <ScrollView>
+        <TouchableOpacity onPress={handleRecord} className="bg-primary-200 shadow-md shadow-zinc-300 rounded-full w-full py-4 mt-5">
+          <Text>Record</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  )
 }

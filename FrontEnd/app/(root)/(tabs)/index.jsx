@@ -37,7 +37,6 @@ export default function Index() {
   }, []);
 
 
-  
 
   const StartRecording = async () => {
     try {

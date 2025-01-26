@@ -71,8 +71,8 @@ def fastToText(audio):
 
 def summarizer(text):
     text_length = len(text.split())
-    max_length = min(75, text_length // 2)
-    min_length = 1
+    max_length = 75
+    min_length = 0
     summary = summarizer_model(text,  max_length = max_length, min_length = min_length)
     summary_text = summary[0]['summary_text']
     clean_summary = summary_text.replace("\"", "").strip()
@@ -80,8 +80,8 @@ def summarizer(text):
 
 def summarize_care(text):
     text_length = len(text.split())
-    max_length = min(75, text_length // 2)
-    min_length = 1
+    max_length = 75
+    min_length = 0
     prompt = "Summarize only the medical care instructions: "
     text_to_summarize = prompt + text
     summary = summarizer_model(text_to_summarize,  max_length = max_length, min_length = min_length)
@@ -109,5 +109,5 @@ def hello():
     return jsonify({"message": "Hello World!"}), 200
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=5000, debug = True)
+    app.run(host="0.0.0.0",port=5001, debug = True)
 

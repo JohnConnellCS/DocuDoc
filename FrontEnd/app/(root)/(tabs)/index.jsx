@@ -51,7 +51,7 @@ export default function Index() {
         type: "audio/wav",
       });
 
-      const response = await axios.post("http://169.234.105.132:5000/", formData, {
+      const response = await axios.post("http://192.168.1.13:5001/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

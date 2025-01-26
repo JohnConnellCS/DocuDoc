@@ -3,12 +3,14 @@ from flask import Flask, request, jsonify
 from pydub import AudioSegment
 from dotenv import load_dotenv
 import assemblyai as aai
+from flask_cors import CORS
 import io
 import os
 from transformers import pipeline
 
 app = Flask(__name__)
 summarizer_model = pipeline("summarization", model="Mahalingam/DistilBart-Med-Summary")
+CORS(app)
 
 def parseAudio(fromFront):
     audio = AudioSegment.from_wav(fromFront)
@@ -102,7 +104,10 @@ def process():
     data = [{'text': total, 'summary': summary, 'instructions': instruct}]
     return jsonify(data), 200
 
+@app.route('/hello', methods=['GET'])
+def hello():
+    return jsonify({"message": "Hello World!"}), 200
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(host="0.0.0.0",port=5000, debug = True)
 

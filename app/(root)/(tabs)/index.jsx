@@ -1,8 +1,8 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
-import React, { useEffect } from 'react'
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useState } from 'react'
 import { Audio } from 'expo-av'
+import { useRouter } from 'expo-router';
 import {
   AndroidAudioEncoder,
   AndroidOutputFormat,
@@ -10,13 +10,29 @@ import {
   IOSOutputFormat,
   Recording,
 } from 'expo-av/build/Audio';
+const { getAllUsersData } = require('../../../src/firebase');
 
 export default function Index() {
   const [recording, setRecording] = useState();
   const [startRecord, setStarRecord] = useState(false);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
   const [recordUri, setUri] = useState(null);
+  const [summaries, setSummaries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
+  useEffect(() => {
+    const fetchSummaries = async () => {
+      try {
+        const data = await getAllUsersData();
+        setSummaries(data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching summaries:", err);
+      }
+    };
+    fetchSummaries();
+  }, []);
 
 
   const StartRecording = async () => {
@@ -83,15 +99,56 @@ export default function Index() {
     setStarRecord(!startRecord);
   };
 
+  const handleViewDetails = (summary) => {
+    router.push({
+      pathname: '/details',
+      params: {
+        summary: summary.summary,
+        postOperativeSteps: summary.postOperativeSteps,
+      },
+    });
+  };
+
   return (
-    <SafeAreaView className = "bg-white h-full">
-      <ScrollView>
-        <TouchableOpacity onPress={handleRecord} className="bg-primary-200 shadow-md shadow-zinc-300 rounded-full w-full py-4 mt-5">
-          <Text>
-            {startRecord ? 'Stop':'Record'}
+    <SafeAreaView className="bg-white h-full">
+      <ScrollView className="px-4">
+        {/* Record Button */}
+        <TouchableOpacity
+          onPress={handleRecord}
+          className="bg-primary-200 shadow-md shadow-zinc-300 rounded-full py-4 mt-5"
+        >
+          <Text className="text-center text-white font-semibold">
+            {startRecord ? 'Stop Recording' : 'Start Recording'}
           </Text>
         </TouchableOpacity>
+  
+        {/* Display List of Summaries */}
+        <View className="mt-10">
+          {loading ? (
+            <View className="flex items-center justify-center mt-20">
+              <ActivityIndicator size="large" color="#789482" />
+            </View>
+          ) : summaries.length === 0 ? (
+            <Text className="text-center text-gray-500 mt-10">No summaries available.</Text>
+          ) : (
+            summaries.map((summary, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => handleViewDetails(summary)}
+                className="bg-gray-100 shadow-sm shadow-gray-400 rounded-md p-4 my-2"
+              >
+                <Text className="text-base font-semibold text-gray-700">
+                  {summary.summary || 'Untitled'}
+                </Text>
+                <Text className="text-sm text-gray-500">
+                  {summary.timestamp?.toDate().toLocaleString() || 'No Date'}
+                </Text>
+              </TouchableOpacity>
+            ))
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
+  
 }

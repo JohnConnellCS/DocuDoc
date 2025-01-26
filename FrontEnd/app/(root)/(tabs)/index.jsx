@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import {StatusBar} from 'expo-status-bar';
 import { Audio } from 'expo-av'
 import { useRouter } from 'expo-router';
 import {
@@ -101,17 +101,27 @@ export default function Index() {
 
   const handleViewDetails = (summary) => {
     router.push({
-      pathname: '/details',
+      pathname: './summaryDetails',
       params: {
+        transcript: summary.transcript,
         summary: summary.summary,
         postOperativeSteps: summary.postOperativeSteps,
+        date: summary.timestamp?.toDate().toLocaleString(),
       },
     });
   };
 
   return (
-    <SafeAreaView className="bg-white h-full">
-      <ScrollView className="px-4">
+    <View>
+      <StatusBar barStyle="light-content" hidden={true} />
+        {/* Header Section */}
+      <View style={{ backgroundColor: '#536663', paddingVertical: 15 }}>
+        <Text style={{ textAlign: 'center', fontSize: 24, fontWeight: 'bold', color: 'white' }}>
+          DocuDoc
+        </Text>
+      </View>
+
+      <ScrollView backgroundColor="#A4C2A5" className="px-4">
         {/* Record Button */}
         <TouchableOpacity
           onPress={handleRecord}
@@ -123,7 +133,7 @@ export default function Index() {
         </TouchableOpacity>
   
         {/* Display List of Summaries */}
-        <View className="mt-10">
+        <View style={{ padding: 20, backgroundColor: '#789482', borderRadius: 10, marginTop: 20 }}>
           {loading ? (
             <View className="flex items-center justify-center mt-20">
               <ActivityIndicator size="large" color="#789482" />
@@ -137,10 +147,10 @@ export default function Index() {
                 onPress={() => handleViewDetails(summary)}
                 className="bg-gray-100 shadow-sm shadow-gray-400 rounded-md p-4 my-2"
               >
-                <Text className="text-base font-semibold text-gray-700">
+                <Text className="text-base font-semibold text-accent-300">
                   {summary.summary || 'Untitled'}
                 </Text>
-                <Text className="text-sm text-gray-500">
+                <Text className="text-sm text-primary-300">
                   {summary.timestamp?.toDate().toLocaleString() || 'No Date'}
                 </Text>
               </TouchableOpacity>
@@ -148,7 +158,6 @@ export default function Index() {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
-  
 }

@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp  } from "firebase/app";
-import { getFirestore, collection, addDoc, Timestamp } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, Timestamp } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -36,5 +36,22 @@ async function submitConversationData(
   }
 }
 
+async function getAllUsersData() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    const allUsersData = [];
+    querySnapshot.forEach((doc) => {
+      allUsersData.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+    console.log("All users data:", allUsersData);
+    return allUsersData;
+  } catch (e) {
+    console.error("Error fetching users data: ", e);
+  }
+}
 
-module.exports = { app, db, submitConversationData};
+
+module.exports = { app, db, submitConversationData, getAllUsersData};

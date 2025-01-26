@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import React, { useState } from 'react';
 import { useGlobalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function SummaryDetails() {
   const { summary, postOperativeSteps, transcript, date } = useGlobalSearchParams();
   
@@ -13,7 +14,7 @@ export default function SummaryDetails() {
   const toggleTranscript = () => setIsTranscriptOpen(!isTranscriptOpen);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#A4C2A5" }}>
+    <SafeAreaView className="flex-1 bg-primary-300 h-full">
         {/* Header Section */}
         <View style={{ backgroundColor: "#536663",  paddingTop: 20, paddingBottom: 0 }}>
         <Text style={styles.title}>
@@ -24,7 +25,7 @@ export default function SummaryDetails() {
         </Text>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollView}>
+        <ScrollView contentContainerStyle={styles.scrollView} className = "bg-primary-100 h-full">
             {/* Dropdown for Summary */}
             <TouchableOpacity style={styles.dropdownButton} onPress={toggleSummary}>
                 <Text style={styles.dropdownButtonText}>Summary</Text>
@@ -49,7 +50,7 @@ export default function SummaryDetails() {
                 <Text style={styles.content}>{transcript || 'N/A'}</Text>
             )}
         </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -2,10 +2,12 @@ from huggingface_hub import InferenceClient
 from flask import Flask, request, jsonify
 from pydub import AudioSegment
 from dotenv import load_dotenv
+from flask_cors import CORS
 import io
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 def parseAudio(fromFront):
     audio = AudioSegment.from_wav(fromFront)
@@ -64,7 +66,10 @@ def process():
     data = [{'text': total, 'summary': 'whatisup'}]
     return jsonify(data), 200
 
+@app.route('/hello', methods=['GET'])
+def hello():
+    return jsonify({"message": "Hello World!"}), 200
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(host="0.0.0.0",port=5000, debug = True)
 

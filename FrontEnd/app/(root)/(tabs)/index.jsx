@@ -21,6 +21,7 @@ export default function Index() {
   const [recordUri, setUri] = useState(null);
   const [summaries, setSummaries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [posted, setPosted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -29,12 +30,13 @@ export default function Index() {
         const data = await getAllUsersData();
         setSummaries(data);
         setLoading(false);
+        setPosted(false);
       } catch (err) {
         console.error("Error fetching summaries:", err);
       }
     };
     fetchSummaries();
-  }, []);
+  }, [posted]);
 
 
 
@@ -110,7 +112,7 @@ export default function Index() {
         type: "audio/wav",
       });
 
-      const response = await axios.post("http://169.234.105.132:5000/", formData, {
+      const response = await axios.post("http://192.168.1.13:5001/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -124,11 +126,15 @@ export default function Index() {
 
   const postToFirebase = async (response) => {
     try{
-      const rawData = response.text || "Sample raw transcript";
-      const transcriptSummary = response.summary || "Sample transcript summary";
-      const postOpSummary = response.instructions || "Sample post doc instructions";
+      const rawData = response[0].text || "Sample raw transcript";
+      console.log("raw data: ", rawData);
+      const transcriptSummary = response[0].summary || "Sample transcript summary";
+      console.log("transcript sum: ", transcriptSummary);
+      const postOpSummary = response[0].instructions || "Sample post doc instructions";
+      console.log("post op summary", postOpSummary);
       await submitConversationData(rawData, transcriptSummary, postOpSummary);
       console.log("Data successfully saved to Firestore.");
+      setPosted(true);
     }catch (error) {
       console.error("Error saving data to Firebase:", error);
     }
@@ -153,6 +159,13 @@ export default function Index() {
         date: summary.timestamp?.toDate().toLocaleString(),
       },
     });
+  };
+
+  const truncateText = (text, wordLimit) => {
+    if (!text) return "Untitled";
+    const words = text.split(" ");
+    if (words.length <= wordLimit) return text;
+    return words.slice(0, wordLimit).join(" ") + "...";
   };
 
   return (
@@ -192,7 +205,7 @@ export default function Index() {
                 className="bg-gray-100 shadow-sm shadow-gray-400 rounded-md p-4 my-2"
               >
                 <Text className="text-base font-semibold text-accent-300">
-                  {summary.summary || 'Untitled'}
+                  {truncateText(summary.summary, 18)}
                 </Text>
                 <Text className="text-sm text-primary-300">
                   {summary.timestamp?.toDate().toLocaleString() || 'No Date'}

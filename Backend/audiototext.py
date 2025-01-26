@@ -71,7 +71,7 @@ def fastToText(audio):
 
 def summarizer(text):
     text_length = len(text.split())
-    max_length = 75
+    max_length = 150
     min_length = 0
     summary = summarizer_model(text,  max_length = max_length, min_length = min_length)
     summary_text = summary[0]['summary_text']
@@ -80,7 +80,7 @@ def summarizer(text):
 
 def summarize_care(text):
     text_length = len(text.split())
-    max_length = 75
+    max_length = 150
     min_length = 0
     prompt = "Summarize only the medical care instructions: "
     text_to_summarize = prompt + text

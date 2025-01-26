@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp  } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, Timestamp } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, Timestamp, orderBy, query } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -38,8 +38,11 @@ async function submitConversationData(
 
 async function getAllUsersData() {
   try {
-    const querySnapshot = await getDocs(collection(db, "users"));
+    const q = query(collection(db, "users"), orderBy("timestamp", "desc"));
+
+    const querySnapshot = await getDocs(q);
     const allUsersData = [];
+
     querySnapshot.forEach((doc) => {
       allUsersData.push({
         id: doc.id,

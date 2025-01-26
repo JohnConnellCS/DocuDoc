@@ -11,6 +11,7 @@ import {
   Recording,
 } from 'expo-av/build/Audio';
 const { getAllUsersData } = require('../../../src/firebase');
+import axios from "axios";
 
 export default function Index() {
   const [recording, setRecording] = useState();
@@ -34,6 +35,32 @@ export default function Index() {
     fetchSummaries();
   }, []);
 
+
+  const uploadRecording = async (uri) => {
+    if (!uri){
+      console.error("No recording URI available");
+      return;
+    }
+    try {
+      const formData = new FormData();
+
+      const fileName = uri.split('/').pop();
+      formData.append("audio", {
+        uri,
+        name: fileName,
+        type: "audio/wav",
+      });
+
+      const response = await axios.post("http://169.234.105.132:5000/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("Response from server:", response.data);
+    }catch (error){
+      console.error("Error uploading audio file:", error);
+    }
+  };
 
   const StartRecording = async () => {
     try {
@@ -88,6 +115,8 @@ export default function Index() {
     const uri = recording.getURI();
     setUri(uri);
     console.log('Recording stopped and stored at', uri);
+    console.log('start uploading recording for process');
+    uploadRecording(uri);
   };
 
   const handleRecord = async ()=>{

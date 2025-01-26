@@ -32,7 +32,7 @@ def getText(userInput):
     userInputs = parseAudio(userInput)
     print("audioParsed")
     load_dotenv('../.env')
-    permissionToEnter = os.getenv("HUGGING_FACE_API_KEY")
+    permissionToEnter = os.getenv("HUGGING_FACE")
     client = InferenceClient(token = permissionToEnter)
     full_text = ""
     for aud in userInputs:

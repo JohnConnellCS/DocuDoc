@@ -10,8 +10,9 @@ import {
   IOSOutputFormat,
   Recording,
 } from 'expo-av/build/Audio';
-const { getAllUsersData } = require('../../../src/firebase');
+const { getAllUsersData,  submitConversationData} = require('../../../src/firebase');
 import axios from "axios";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Index() {
   const [recording, setRecording] = useState();
@@ -36,31 +37,7 @@ export default function Index() {
   }, []);
 
 
-  const uploadRecording = async (uri) => {
-    if (!uri){
-      console.error("No recording URI available");
-      return;
-    }
-    try {
-      const formData = new FormData();
-
-      const fileName = uri.split('/').pop();
-      formData.append("audio", {
-        uri,
-        name: fileName,
-        type: "audio/wav",
-      });
-
-      const response = await axios.post("http://169.234.105.132:5000/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log("Response from server:", response.data);
-    }catch (error){
-      console.error("Error uploading audio file:", error);
-    }
-  };
+  
 
   const StartRecording = async () => {
     try {
@@ -119,6 +96,45 @@ export default function Index() {
     uploadRecording(uri);
   };
 
+  const uploadRecording = async (uri) => {
+    if (!uri){
+      console.error("No recording URI available");
+      return;
+    }
+    try {
+      const formData = new FormData();
+
+      const fileName = uri.split('/').pop();
+      formData.append("audio", {
+        uri,
+        name: fileName,
+        type: "audio/wav",
+      });
+
+      const response = await axios.post("http://169.234.105.132:5000/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("Response from server:", response.data);
+      await postToFirebase(response.data);
+    }catch (error){
+      console.error("Error uploading audio file:", error);
+    }
+  };
+
+  const postToFirebase = async (response) => {
+    try{
+      const rawData = response.text || "Sample raw transcript";
+      const transcriptSummary = response.summary || "Sample transcript summary";
+      const postOpSummary = response.instructions || "Sample post doc instructions";
+      await submitConversationData(rawData, transcriptSummary, postOpSummary);
+      console.log("Data successfully saved to Firestore.");
+    }catch (error) {
+      console.error("Error saving data to Firebase:", error);
+    }
+  };
+
   const handleRecord = async ()=>{
     if (!startRecord){
       await StartRecording();
@@ -141,7 +157,7 @@ export default function Index() {
   };
 
   return (
-    <View>
+    <SafeAreaView className="bg-primary-300 h-full">
       <StatusBar barStyle="light-content" hidden={true} />
         {/* Header Section */}
       <View style={{ backgroundColor: '#536663', paddingVertical: 15 }}>
@@ -150,7 +166,7 @@ export default function Index() {
         </Text>
       </View>
 
-      <ScrollView backgroundColor="#A4C2A5" className="px-4">
+      <ScrollView className="px-4 bg-primary-100">
         {/* Record Button */}
         <TouchableOpacity
           onPress={handleRecord}
@@ -187,6 +203,6 @@ export default function Index() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

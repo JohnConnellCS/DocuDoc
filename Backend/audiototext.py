@@ -2,10 +2,13 @@ from huggingface_hub import InferenceClient
 from flask import Flask, request, jsonify
 from pydub import AudioSegment
 from dotenv import load_dotenv
+import assemblyai as aai
 import io
 import os
+from transformers import pipeline
 
 app = Flask(__name__)
+summarizer_model = pipeline("summarization", model="Mahalingam/DistilBart-Med-Summary")
 
 def parseAudio(fromFront):
     audio = AudioSegment.from_wav(fromFront)
@@ -33,12 +36,12 @@ def getText(userInput):
     print("audioParsed")
     load_dotenv('../.env')
     permissionToEnter = os.getenv("HUGGING_FACE")
-    client = InferenceClient(token = permissionToEnter)
     full_text = ""
     for aud in userInputs:
         cur_text = ""
         for i in range(5):
             try:
+                client = InferenceClient(token = permissionToEnter)
                 result = client.automatic_speech_recognition(audio = aud)
                 cur_text = result.get('text', "") + " "
                 break
@@ -53,6 +56,38 @@ def getText(userInput):
             return "No transcription available."
     return full_text.strip()
 
+def fastToText(audio):
+    load_dotenv('../.env')
+    permissionToEnter = os.getenv("ASSEMBLY_AI")
+    aai.settings.api_key = permissionToEnter
+    transcriber = aai.Transcriber()
+    transcript = transcriber.transcribe(audio)
+    if transcript.status == aai.TranscriptStatus.error:
+        print(f"Transcription failed: {transcript.error}")
+        return "error"
+    return transcript.text
+
+def summarizer(text):
+    text_length = len(text.split())
+    max_length = min(75, text_length // 2)
+    min_length = 1
+    summary = summarizer_model(text,  max_length = max_length, min_length = min_length)
+    summary_text = summary[0]['summary_text']
+    clean_summary = summary_text.replace("\"", "").strip()
+    return clean_summary
+
+def summarize_care(text):
+    text_length = len(text.split())
+    max_length = min(75, text_length // 2)
+    min_length = 1
+    prompt = "Summarize only the medical care instructions: "
+    text_to_summarize = prompt + text
+    summary = summarizer_model(text_to_summarize,  max_length = max_length, min_length = min_length)
+    summary_text = summary[0]['summary_text']
+    clean_summary = summary_text.replace("\"", "").strip()
+    return clean_summary
+
+
 @app.route('/', methods=['POST'])
 def process():
     if 'audio' in request.files:
@@ -60,8 +95,11 @@ def process():
         audio_file = request.files['audio']
     else:
         return jsonify({'error': 'No audio file provided.'}), 400
-    total = getText(audio_file)
-    data = [{'text': total, 'summary': 'whatisup'}]
+    #total = getText(audio_file)
+    total = fastToText(audio_file)
+    summary = summarizer(total)
+    instruct = summarize_care(total)
+    data = [{'text': total, 'summary': summary, 'instructions': instruct}]
     return jsonify(data), 200
 
 

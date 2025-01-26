@@ -46,7 +46,6 @@ async function getAllUsersData() {
         ...doc.data(),
       });
     });
-    console.log("All users data:", allUsersData);
     return allUsersData;
   } catch (e) {
     console.error("Error fetching users data: ", e);

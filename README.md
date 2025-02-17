@@ -1,50 +1,27 @@
-# Welcome to your Expo app 👋
+##Winner: IrvineHacks 2025: Patient Safety Track Winner
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Inspiration
 
-## Get started
+**125,000 people die every year due to medical noncoherence** (according to the AAMC).  While some of those deaths can be attributed to intentional misbehavior, many more are caused by gaps in communication and understanding between patient and healthcare provider. Many patients are rushed in and out the door, bombarded with medical jargon and post-visit instructions nearly impossible to fully understand. These problems are exacerbated for many that do not speak English as a first language or have lower levels of education. Our solution is DocuDoc, a summary and transcription tool meant to bridge the gap between doctor's orders and what actually happens after a visit.
 
-1. Install dependencies
+## What it does
 
-   ```bash
-   npm install
-   ```
+DocuDoc listens in on a conversation between a doctor and a patient. After the appointment ends, the tool creates a summary of the visit, highlighting next steps for the patient and providing a full text-transcription for reference.
 
-2. Start the app
+## How we built it
 
-   ```bash
-    npx expo start
-   ```
+This product is made primarily with react-native and firebase. We utilized expo-av to record audios from the microphone, then used Assembly AI API to convert the audio files to text transcriptions. These text transcriptions were then fed into the distilBart-Med-Summary model from Hugging Face(see challenges) to create summaries and recommendations. **This model was trained on thousands doctor-patient interactions**, maximizing its efficacy for our use case.
 
-In the output, you'll find options to open the app in a
+## Accomplishments that we're proud of
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+*Fully integrating speech-to-text transcriptions
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+*Plugging those transcriptions into model trained on doctor-patient interactions
 
-## Get a fresh project
+*Using the output of the model to provide effective summaries for patients
 
-When you're ready, run:
+## What's next for DocuDoc
+After locating a better model for after-visit instructions, we would like to further accessibility features such as language translation for those who do not speak English as a first language. 
 
-```bash
-npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+https://devpost.com/software/docudoc
